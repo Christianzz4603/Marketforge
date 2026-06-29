@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MarketForge — Minecraft Marketplace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#050608;
+  --ink:#0c0d12;
+  --surface:#111318;
+  --card:#161820;
+  --border:#1e2028;
+  --border-hi:#2a2d3a;
+  --cyan:#00d4ff;
+  --cyan-dim:rgba(0,212,255,0.1);
+  --cyan-glow:rgba(0,212,255,0.2);
+  --gold:#ffd166;
+  --gold-dim:rgba(255,209,102,0.1);
+  --text:#eef0f8;
+  --muted:#5a5d72;
+  --dim:#2a2d3a;
+  --green:#06d6a0;
+  --red:#ef476f;
+  --display:'Syne',sans-serif;
+  --body:'Inter',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --r:8px;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--void);
+  color:var(--text);
+  font-family:var(--body);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── GRID TEXTURE (signature element) ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,212,255,0.018) 1px,transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;z-index:0;
+}
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:radial-gradient(ellipse 100% 60% at 50% 0%,rgba(0,212,255,0.05) 0%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:300;
+  background:rgba(5,6,8,0.9);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;height:56px;
+}
+.logo{
+  font-family:var(--display);font-weight:800;font-size:1.1rem;
+  letter-spacing:-0.02em;color:var(--text);
+  display:flex;align-items:center;gap:0.5rem;
+}
+.logo-mark{
+  width:24px;height:24px;
+  background:var(--cyan);
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  flex-shrink:0;
+}
+.logo em{color:var(--cyan);font-style:normal}
+.nav-pill{
+  font-family:var(--mono);font-size:0.72rem;
+  color:var(--cyan);background:var(--cyan-dim);
+  border:1px solid rgba(0,212,255,0.2);
+  padding:3px 10px;border-radius:20px;
+  transition:background 0.15s;
+}
+
+/* ── HERO ── */
+.hero{
+  position:relative;z-index:1;
+  padding:5rem 2rem 3.5rem;
+  max-width:1080px;margin:0 auto;
+}
+.hero-chip{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  font-family:var(--mono);font-size:0.7rem;letter-spacing:0.1em;
+  color:var(--cyan);text-transform:uppercase;
+  border:1px solid rgba(0,212,255,0.25);
+  padding:5px 12px;border-radius:4px;
+  margin-bottom:1.5rem;
+}
+.hero-chip::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--cyan);box-shadow:0 0 6px var(--cyan);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.hero h1{
+  font-family:var(--display);
+  font-size:clamp(2.8rem,6vw,5.5rem);
+  font-weight:800;line-height:1.0;
+  letter-spacing:-0.03em;
+  margin-bottom:1.2rem;
+}
+.hero h1 .line2{
+  color:transparent;
+  -webkit-text-stroke:1.5px var(--cyan);
+  display:block;
+}
+.hero-sub{
+  font-size:1rem;color:var(--muted);
+  max-width:460px;line-height:1.7;
+  margin-bottom:2.5rem;
+}
+.hero-stats{
+  display:flex;gap:2rem;flex-wrap:wrap;
+}
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat-num{
+  font-family:var(--display);font-size:1.8rem;font-weight:700;
+  color:var(--text);line-height:1;
+}
+.stat-label{font-family:var(--mono);font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em}
+
+/* ── CONTROLS ── */
+.controls{
+  position:relative;z-index:1;
+  max-width:1080px;margin:0 auto 2rem;
+  padding:0 2rem;
+  display:flex;flex-direction:column;gap:0.8rem;
+}
+.search-row{display:flex;gap:0.6rem}
+.search-wrap{position:relative;flex:1}
+.search-icon{
+  position:absolute;left:1rem;top:50%;transform:translateY(-50%);
+  color:var(--muted);pointer-events:none;
+  width:15px;height:15px;
+}
+#search{
+  width:100%;
+  background:var(--surface);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-family:var(--body);font-size:0.9rem;
+  padding:0.8rem 1rem 0.8rem 2.8rem;
+  border-radius:var(--r);outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s;
+}
+#search:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cyan-dim)}
+#search::placeholder{color:var(--muted)}
+.sort-select{
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--text);font-family:var(--body);font-size:0.85rem;
+  padding:0.8rem 1rem;border-radius:var(--r);
+  outline:none;cursor:pointer;
+  transition:border-color 0.15s;min-width:140px;
+}
+.sort-select:focus{border-color:var(--cyan)}
+.filters{display:flex;gap:0.5rem;flex-wrap:wrap}
+.filter-btn{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--muted);
+  font-family:var(--mono);font-size:0.72rem;
+  padding:0.35rem 0.9rem;border-radius:4px;
+  cursor:pointer;letter-spacing:0.04em;
+  transition:all 0.15s;
+}
+.filter-btn:hover{border-color:var(--cyan);color:var(--cyan)}
+.filter-btn.active{
+  background:var(--cyan-dim);
+  border-color:var(--cyan);color:var(--cyan);
+}
+
+/* ── GRID ── */
+.grid-wrap{
+  position:relative;z-index:1;
+  max-width:1080px;margin:0 auto;
+  padding:0 2rem 6rem;
+}
+.results-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1.2rem;
+}
+#results-info{font-family:var(--mono);font-size:0.75rem;color:var(--muted)}
+#grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  overflow:hidden;
+}
+
+/* ── CARD ── */
+.card{
+  background:var(--card);
+  display:flex;flex-direction:column;
+  cursor:pointer;
+  transition:background 0.15s;
+  position:relative;
+}
+.card::after{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--cyan-dim),transparent);
+  opacity:0;transition:opacity 0.2s;
+  pointer-events:none;
+}
+.card:hover{background:var(--surface)}
+.card:hover::after{opacity:1}
+.card-img-wrap{
+  width:100%;aspect-ratio:16/9;overflow:hidden;
+  background:var(--surface);position:relative;flex-shrink:0;
+}
+.card-img-wrap img{
+  width:100%;height:100%;object-fit:cover;
+  transition:transform 0.4s var(--ease);display:block;
+}
+.card:hover .card-img-wrap img{transform:scale(1.04)}
+.card-img-placeholder{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;
+  background:linear-gradient(135deg,var(--surface),var(--card));
+  color:var(--dim);
+}
+.card-badge{
+  position:absolute;bottom:0.5rem;left:0.5rem;
+  font-family:var(--mono);font-size:0.62rem;letter-spacing:0.05em;
+  background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);
+  border:1px solid var(--border-hi);
+  color:var(--muted);
+  padding:2px 7px;border-radius:3px;
+}
+.card-body{
+  padding:0.9rem;flex:1;
+  display:flex;flex-direction:column;gap:0.3rem;
+  border-top:1px solid var(--border);
+}
+.card-name{
+  font-family:var(--display);font-size:0.92rem;font-weight:600;
+  color:var(--text);line-height:1.3;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.card-creator{font-size:0.76rem;color:var(--muted)}
+.card-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:auto;padding-top:0.7rem;
+}
+.price{font-family:var(--mono);font-size:0.78rem;font-weight:500;color:var(--gold)}
+.price.free{color:var(--green)}
+.card-arrow{
+  font-size:0.7rem;color:var(--muted);
+  transition:color 0.15s,transform 0.15s;
+}
+.card:hover .card-arrow{color:var(--cyan);transform:translateX(3px)}
+
+/* ── STATE ── */
+.state-msg{
+  text-align:center;padding:5rem 1rem;
+  color:var(--muted);font-size:0.9rem;
+  grid-column:1/-1;background:var(--card);
+}
+.state-msg strong{
+  display:block;font-family:var(--display);font-size:1.3rem;
+  color:var(--text);margin-bottom:0.5rem;font-weight:700;
+}
+
+/* ── MODAL ── */
+.overlay{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;
+  padding:1.5rem;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.2s var(--ease);
+}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--surface);
+  border:1px solid var(--border-hi);
+  border-radius:12px;
+  width:100%;max-width:660px;
+  max-height:90vh;overflow-y:auto;
+  display:flex;flex-direction:column;
+  transform:translateY(16px);
+  transition:transform 0.2s var(--ease);
+  box-shadow:0 0 0 1px rgba(0,212,255,0.08),0 32px 64px rgba(0,0,0,0.6);
+}
+.overlay.open .modal{transform:translateY(0)}
+.modal-img{
+  width:100%;aspect-ratio:16/7;overflow:hidden;
+  background:var(--card);flex-shrink:0;
+  border-radius:12px 12px 0 0;position:relative;
+}
+.modal-img img{width:100%;height:100%;object-fit:cover;display:block}
+.modal-img-ph{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:3.5rem;color:var(--dim);
+  background:linear-gradient(135deg,var(--card),var(--surface));
+}
+.modal-stripe{
+  height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  flex-shrink:0;
+}
+.modal-body{padding:1.6rem}
+.modal-chips{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.9rem}
+.chip{
+  font-family:var(--mono);font-size:0.66rem;letter-spacing:0.06em;
+  padding:3px 9px;border-radius:3px;
+  background:var(--cyan-dim);border:1px solid rgba(0,212,255,0.2);
+  color:var(--cyan);
+}
+.chip.host{background:var(--card);border-color:var(--border-hi);color:var(--muted)}
+.modal-title{
+  font-family:var(--display);font-size:1.75rem;font-weight:800;
+  letter-spacing:-0.02em;color:var(--text);
+  line-height:1.1;margin-bottom:0.4rem;
+}
+.modal-creator{font-size:0.85rem;color:var(--muted);margin-bottom:1.1rem}
+.modal-creator b{color:var(--text);font-weight:500}
+.modal-desc{
+  font-size:0.875rem;color:var(--muted);line-height:1.75;
+  white-space:pre-line;margin-bottom:1.4rem;
+  border-left:2px solid var(--cyan-dim);
+  padding-left:1rem;
+}
+.modal-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:1.2rem;border-top:1px solid var(--border);
+  gap:1rem;flex-wrap:wrap;
+}
+.modal-price-wrap{}
+.modal-price-label{
+  font-family:var(--mono);font-size:0.65rem;color:var(--muted);
+  text-transform:uppercase;letter-spacing:0.1em;margin-bottom:2px;
+}
+.modal-price-val{
+  font-family:var(--display);font-size:1.5rem;font-weight:700;
+  color:var(--gold);
+}
+.modal-price-val.free{color:var(--green);font-size:1.1rem}
+.modal-actions{display:flex;gap:0.6rem;align-items:center}
+.btn-dl{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  background:var(--cyan);color:var(--void);
+  font-family:var(--display);font-weight:700;font-size:0.85rem;
+  padding:0.7rem 1.5rem;border-radius:var(--r);
+  text-decoration:none;border:none;cursor:pointer;
+  transition:opacity 0.15s,transform 0.15s;
+  letter-spacing:-0.01em;
+}
+.btn-dl:hover{opacity:0.88;transform:translateY(-1px)}
+.btn-close{
+  background:var(--card);border:1px solid var(--border-hi);
+  color:var(--muted);font-family:var(--body);font-size:0.82rem;
+  padding:0.7rem 1.1rem;border-radius:var(--r);cursor:pointer;
+  transition:border-color 0.15s,color 0.15s;
+}
+.btn-close:hover{border-color:var(--cyan);color:var(--text)}
+
+/* ── FOOTER ── */
+footer{
+  position:relative;z-index:1;
+  border-top:1px solid var(--border);
+  padding:1.5rem 2rem;
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:var(--mono);font-size:0.72rem;color:var(--muted);
+  flex-wrap:wrap;gap:0.5rem;
+}
+footer span{color:var(--cyan)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--void)}
+::-webkit-scrollbar-thumb{background:var(--dim);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--cyan)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  nav,footer{padding-left:1rem;padding-right:1rem}
+  .hero,.controls,.grid-wrap{padding-left:1rem;padding-right:1rem}
+  .hero{padding-top:3rem}
+  .hero h1{font-size:2.4rem}
+  #grid{grid-template-columns:1fr 1fr}
+  .modal-body{padding:1.1rem}
+  .modal-title{font-size:1.3rem}
+}
+@media(max-width:400px){
+  #grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <div class="logo-mark"></div>
+    Market<em>Forge</em>
+  </div>
+  <div class="nav-pill" id="nav-count">— mods</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-chip">Minecraft Marketplace Registry</div>
+  <h1>Every mod.<br/><span class="line2">One place.</span></h1>
+  <p class="hero-sub">Browse the full MarketForge catalogue — add-ons, skin packs, maps, and more. Updated automatically by the bot.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num" id="stat-total">—</span>
+      <span class="stat-label">Total Mods</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="stat-free">—</span>
+      <span class="stat-label">Free</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="stat-types">—</span>
+      <span class="stat-label">Categories</span>
+    </div>
+  </div>
+</section>
+
+<div class="controls">
+  <div class="search-row">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input id="search" type="text" placeholder="Search mods, creators, descriptions…" autocomplete="off"/>
+    </div>
+    <select class="sort-select" id="sort">
+      <option value="newest">Newest first</option>
+      <option value="oldest">Oldest first</option>
+      <option value="name">A → Z</option>
+      <option value="price_asc">Price: low</option>
+      <option value="price_desc">Price: high</option>
+      <option value="free">Free only</option>
+    </select>
+  </div>
+  <div class="filters" id="filters">
+    <button class="filter-btn active" data-type="all">ALL</button>
+  </div>
+</div>
+
+<div class="grid-wrap">
+  <div class="results-bar">
+    <span id="results-info"></span>
+  </div>
+  <div id="grid">
+    <div class="state-msg"><strong>Loading catalogue…</strong>Fetching mod data</div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-img" id="modal-img"></div>
+    <div class="modal-stripe"></div>
+    <div class="modal-body">
+      <div class="modal-chips" id="modal-chips"></div>
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-creator" id="modal-creator"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <div class="modal-footer">
+        <div class="modal-price-wrap">
+          <div class="modal-price-label">Marketplace Price</div>
+          <div class="modal-price-val" id="modal-price"></div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-close" id="modal-close">✕ Close</button>
+          <a class="btn-dl" id="modal-dl" href="#" target="_blank" rel="noopener">↓ Download</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span>MarketForge</span>
+  <span>Updated automatically · <span id="footer-count">—</span> mods indexed</span>
+</footer>
+
+<script>
+const MODS_URL = 'https://marketforgeurl.netlify.app/mods.json';
+let allMods = [], filtered = [];
+
+async function load(){
+  try{
+    const r = await fetch(MODS_URL + '?t=' + Date.now());
+    if(!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    allMods = Object.values(d);
+    if(!allMods.length){
+      grid('empty');return;
+    }
+    bootstrap();
+  }catch(e){
+    grid('error');
+  }
+}
+
+function bootstrap(){
+  const total = allMods.length;
+  const free  = allMods.filter(m=>!m.price||m.price===0).length;
+  const types = new Set(allMods.map(m=>m.mod_type).filter(Boolean)).size;
+
+  animateNum('stat-total', total);
+  animateNum('stat-free', free);
+  animateNum('stat-types', types);
+  document.getElementById('nav-count').textContent = total + ' mods';
+  document.getElementById('footer-count').textContent = total;
+
+  // Filters
+  const fil = document.getElementById('filters');
+  const typeList = [...new Set(allMods.map(m=>m.mod_type).filter(Boolean))].sort();
+  typeList.forEach(t=>{
+    const b = document.createElement('button');
+    b.className='filter-btn';b.dataset.type=t;
+    b.textContent=t.replace(/[^\w\s]/g,'').trim()||t;
+    fil.appendChild(b);
+  });
+  fil.addEventListener('click',e=>{
+    const b=e.target.closest('.filter-btn');if(!b)return;
+    fil.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');render();
+  });
+  document.getElementById('search').addEventListener('input',render);
+  document.getElementById('sort').addEventListener('change',render);
+  render();
+}
+
+function render(){
+  const q    = document.getElementById('search').value.toLowerCase().trim();
+  const type = document.querySelector('.filter-btn.active')?.dataset.type||'all';
+  const sort = document.getElementById('sort').value;
+
+  filtered = allMods.filter(m=>{
+    if(type!=='all' && m.mod_type!==type) return false;
+    if(sort==='free' && m.price && m.price>0) return false;
+    if(!q) return true;
+    return (m.name||'').toLowerCase().includes(q)
+        || (m.creator||'').toLowerCase().includes(q)
+        || (m.description||'').toLowerCase().includes(q);
+  });
+
+  filtered.sort((a,b)=>{
+    switch(sort){
+      case 'newest': return new Date(b.added_at||0)-new Date(a.added_at||0);
+      case 'oldest': return new Date(a.added_at||0)-new Date(b.added_at||0);
+      case 'name':   return (a.name||'').localeCompare(b.name||'');
+      case 'price_asc':  return (a.price||0)-(b.price||0);
+      case 'price_desc': return (b.price||0)-(a.price||0);
+      default: return new Date(b.added_at||0)-new Date(a.added_at||0);
+    }
+  });
+
+  const el = document.getElementById('results-info');
+  el.textContent = (q||type!=='all'||sort==='free')
+    ? `${filtered.length} / ${allMods.length} mods`
+    : `${allMods.length} mods`;
+
+  if(!filtered.length){grid('none');return;}
+
+  const g = document.getElementById('grid');
+  g.innerHTML = filtered.map(cardHTML).join('');
+  g.querySelectorAll('.card').forEach((el,i)=>el.addEventListener('click',()=>openModal(filtered[i])));
+}
+
+function cardHTML(m){
+  const img = m.image_url
+    ? `<img src="${x(m.image_url)}" alt="${x(m.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+       <div class="card-img-placeholder" style="display:none">⬡</div>`
+    : `<div class="card-img-placeholder">⬡</div>`;
+  const pr = m.price && m.price>0
+    ? `<span class="price">${Number(m.price).toLocaleString()} coins</span>`
+    : `<span class="price free">Free</span>`;
+  return `<div class="card">
+    <div class="card-img-wrap">${img}${m.host?`<span class="card-badge">${x(m.host)}</span>`:''}</div>
+    <div class="card-body">
+      <div class="card-name">${x(m.name||'Unnamed')}</div>
+      ${m.creator?`<div class="card-creator">${x(m.creator)}</div>`:''}
+      <div class="card-footer">${pr}<span class="card-arrow">→</span></div>
+    </div>
+  </div>`;
+}
+
+function openModal(m){
+  document.getElementById('modal-img').innerHTML = m.image_url
+    ? `<img src="${x(m.image_url)}" alt="${x(m.name)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+       <div class="modal-img-ph" style="display:none">⬡</div>`
+    : `<div class="modal-img-ph">⬡</div>`;
+
+  document.getElementById('modal-chips').innerHTML = [
+    m.mod_type?`<span class="chip">${x(m.mod_type)}</span>`:'',
+    m.host?`<span class="chip host">${x(m.host)}</span>`:'',
+  ].join('');
+
+  document.getElementById('modal-title').textContent   = m.name||'Unnamed';
+  document.getElementById('modal-creator').innerHTML   = m.creator?`Created by <b>${x(m.creator)}</b>`:'';
+  document.getElementById('modal-desc').textContent    = m.description||'No description provided.';
+
+  const pv = document.getElementById('modal-price');
+  if(m.price && m.price>0){
+    pv.textContent = Number(m.price).toLocaleString() + ' coins';
+    pv.className = 'modal-price-val';
+  }else{
+    pv.textContent = 'Free';
+    pv.className = 'modal-price-val free';
+  }
+
+  const dl = document.getElementById('modal-dl');
+  if(m.url){dl.href=m.url;dl.style.display='inline-flex';}
+  else{dl.style.display='none';}
+
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  document.getElementById('overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+document.getElementById('modal-close').addEventListener('click',closeModal);
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+function grid(state){
+  const msgs = {
+    empty:'<div class="state-msg"><strong>No mods yet</strong>Run !deploy in Discord to sync the catalogue.</div>',
+    error:'<div class="state-msg"><strong>Could not load mods</strong>Check that the bot has deployed mods.json to Netlify.</div>',
+    none:'<div class="state-msg"><strong>No results</strong>Try a different search or filter.</div>',
+  };
+  document.getElementById('grid').innerHTML = msgs[state]||'';
+}
+
+function animateNum(id, target){
+  const el = document.getElementById(id);
+  let n = 0, step = Math.max(1, Math.floor(target/40));
+  const t = setInterval(()=>{
+    n = Math.min(n+step, target);
+    el.textContent = n;
+    if(n>=target) clearInterval(t);
+  }, 30);
+}
+
+function x(s){
+  return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+load();
+</script>
+</body>
+</html>
