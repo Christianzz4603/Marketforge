@@ -1,0 +1,28 @@
+{
+  "name": "MarketForge",
+  "short_name": "MarketForge",
+  "description": "The complete Minecraft Marketplace mod catalogue",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090B",
+  "theme_color": "#09090B",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": [
+    "games",
+    "entertainment"
+  ]
+}
