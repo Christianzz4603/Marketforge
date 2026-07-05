@@ -2999,5 +2999,21 @@
     "price": 830,
     "message_id": 1523450334733795520,
     "thread_id": 1523450340404625470
+  },
+  "teleporters add-on v1.1.1": {
+    "name": "Teleporters Add-On v1.1.1",
+    "url": "https://link-target.net/6861714/LFjxjy4paN9N",
+    "uuid": "b13c11ee-10a1-466f-847b-5ea977ff4b64",
+    "host": "Linkvertise",
+    "added_by": "MarketForge",
+    "mod_type": "📦 Mod",
+    "added_at": "2026-07-05T22:09:08.970122",
+    "updated_at": "2026-07-05T22:09:08.970122",
+    "image_url": "https://xforgeassets001.xboxlive.com/pf-namespace-b63a0803d3653643/ce900695-d92f-49d5-8243-21331e344100/Teleporters_Thumbnail_0.jpg",
+    "description": "Boost travel with Teleporters! Place a teleporter, choose a color, and instantly warp to other matching teleporters.\r\n- Works with players, items, and other mobs!\r\n- Redstone connectivity\r\n- Over 170+ teleporter variations!",
+    "creator": "JWolf Creations",
+    "price": 490,
+    "message_id": 1523450691165884460,
+    "thread_id": 1523450695615906103
   }
 }
