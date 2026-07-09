@@ -527,21 +527,45 @@ footer span{color:var(--gold)}
 </footer>
 
 <script>
-const MODS_URL = 'https://raw.githubusercontent.com/Christianzz4603/Marketforge/main/mods.json';
+// Cached Worker endpoint — NOT raw GitHub. Every visitor hitting GitHub
+// directly (especially with a cache-busting timestamp, which the old
+// version of this file did) is exactly what caused "sometimes fails to
+// load" — GitHub rate-limits (HTTP 429) once enough requests stack up.
+// This endpoint is cached at Cloudflare's edge for 5 minutes, so it can
+// absorb any amount of site traffic without ever hitting that limit.
+const MODS_URL = 'https://marketforgeai.marketforge000.workers.dev/mods';
 let allMods = [], filtered = [], favs = new Set(JSON.parse(localStorage.getItem('mf_favs')||'[]'));
 let currentMod = null;
 let priceMin = 0, priceMax = 9999;
 
+// Defensive filter — matches the same check the Discord bot and app use.
+// The underlying data source has, at times, had unrelated moderation/ban
+// records mixed into the same JSON object as real mods. Those must never
+// be displayed on the site. The Worker already filters these out, but
+// this is a second safety net in case that data is ever fetched from
+// somewhere else in the future.
+function isRealMod(m){
+  return m && typeof m === 'object' &&
+    typeof m.name === 'string' &&
+    typeof m.mod_type === 'string' &&
+    !('banned_by' in m) && !('rule_nums' in m);
+}
+
 // ── Load ──
 async function load(){
   try{
-    const r = await fetch(MODS_URL + '?t=' + Date.now());
+    // No cache-busting query param — letting the browser (and Cloudflare's
+    // CDN) cache this response normally is what makes repeat loads fast
+    // AND keeps traffic off GitHub. If you need to force a fresh fetch
+    // while debugging, use your browser's dev tools "disable cache"
+    // option instead of re-adding a timestamp param here.
+    const r = await fetch(MODS_URL);
     if(!r.ok){
       setGrid('error', 'HTTP ' + r.status + ' from ' + MODS_URL);
       return;
     }
     const d = await r.json();
-    allMods = Object.values(d);
+    allMods = Object.values(d).filter(isRealMod);
     if(!allMods.length){ setGrid('empty'); return; }
     boot();
   }catch(e){
